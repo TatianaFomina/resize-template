@@ -2,6 +2,7 @@ import { ApplicationRef, ChangeDetectorRef, EventEmitter, Inject, Injectable, On
 import { BreakpointObserver, BreakpointState, Breakpoints } from '@angular/cdk/layout';
 import { BehaviorSubject, Observable, of, Subscription } from 'rxjs';
 import { distinctUntilChanged, map } from 'rxjs/operators';
+import { IfViewPortSizeDirective } from './if-viewport-size.directive';
 
 export class Config {
   medium: number;
@@ -23,45 +24,31 @@ export class WindowParamsService implements OnDestroy {
   private MEDIUM;// = `(min-width: ${config.medium}px)`;
   private LARGE;// = `(min-width: ${config.large}px)`;
 
-  public detectChanges = new EventEmitter();
+  private refs = {
+    small: [],
+    medium: [],
+    large: []
+  }
 
   constructor(private breakpointObserver: BreakpointObserver, @Optional() config?: Config) {
-    const MEDIUM = `(min-width: ${config.medium}px)`;
-    const LARGE = `(min-width: ${config.large}px)`;
-
     this.MEDIUM = `(min-width: ${config.medium}px)`;
     this.LARGE = `(min-width: ${config.large}px)`;
 
-    // Get initial width
-    if (breakpointObserver.isMatched(LARGE)) {
-      this.width = WidthType.LARGE;
-    } else if (breakpointObserver.isMatched(MEDIUM)) {
-      this.width = WidthType.MEDIUM;
-    } else {
-      this.width = WidthType.SMALL;
-    }
-    // cd.tick();
-    // cd.components.forEach(component => component.changeDetectorRef.markForCheck())
-    // cd.detectChanges()
-    this.detectChanges.emit()
-
-    // Observe width changes
-    this.sub = breakpointObserver.observe([MEDIUM, LARGE]).subscribe((state: BreakpointState) => {
-      if (state.breakpoints[LARGE]) {
-        this.width = WidthType.LARGE;
-      } else if (state.breakpoints[MEDIUM]) {
-        this.width = WidthType.MEDIUM;
-      } else {
-        this.width = WidthType.SMALL;
-      }
-      // cd.tick();
-      // cd.detectChanges()
-      this.detectChanges.emit()
-      // cd.components.forEach(component => component.changeDetectorRef.markForCheck())
-    });
+    this.sub = this.getWidth().subscribe(width => {
+      this.refs[width].forEach(ref => ref.render());
+      Object.keys(this.refs)
+        .filter(key => key !== width)
+        .map(key => this.refs[key])
+        .reduce((acc, val) => acc.concat(val)) // there is no flat() yet
+        .forEach(ref => ref.hide());
+    })
   }
 
-  public getWidth(): Observable<WidthType> {
+  public register(directiveRef: IfViewPortSizeDirective, width: string) {
+    this.refs[width].push(directiveRef);
+  }
+
+  private getWidth(): Observable<WidthType> {
     return this.breakpointObserver
       .observe([this.MEDIUM, this.LARGE])
       .pipe(map((state: BreakpointState) => {
