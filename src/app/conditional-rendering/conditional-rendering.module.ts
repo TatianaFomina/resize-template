@@ -1,6 +1,6 @@
 import { ModuleWithProviders, NgModule } from "@angular/core";
 import { CommonModule } from "@angular/common";
-import { Config, WindowParamsService } from './window-params.service';
+import { Config } from './window-params.service';
 import { IfViewPortSizeDirective } from './if-viewport-size.directive';
 
 @NgModule({
@@ -8,11 +8,11 @@ import { IfViewPortSizeDirective } from './if-viewport-size.directive';
   declarations: [IfViewPortSizeDirective],
   exports: [IfViewPortSizeDirective],
 })
-export class ResizeModule {
+export class ConditionalRenderingModule {
 
-  static forRoot(config: Config): ModuleWithProviders<ResizeModule> {
+  static use(config: Config): ModuleWithProviders<ConditionalRenderingModule> {
     return {
-      ngModule: ResizeModule,
+      ngModule: ConditionalRenderingModule,
       providers: [
         { provide: Config, useValue: config }
       ]

@@ -8,6 +8,4 @@ import { Component } from '@angular/core';
 export class AppComponent  {
   name = 'Angular 5';
   constructor() {}
-
-  list = new Array(5000).fill(1);
 }
