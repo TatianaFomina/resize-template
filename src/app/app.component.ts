@@ -1,19 +1,13 @@
-import { ChangeDetectorRef, Component } from '@angular/core';
-import { WindowParamsService } from './resize/window-params.service';
+import { Component } from '@angular/core';
 
 @Component({
   selector: 'my-app',
   templateUrl: './app.component.html',
-  styleUrls: [ './app.component.css' ]
+  styleUrls: ['./app.component.css']
 })
-export class AppComponent  {
+export class AppComponent {
   name = 'Angular 5';
-  constructor(private windowParamsSvc: WindowParamsService, private cd: ChangeDetectorRef) {
-    this.windowParamsSvc.detectChanges.subscribe(_ => {
-      this.cd.markForCheck();
-      this.cd.detectChanges();
-    })
-  }
+  constructor() { }
 
-  list = new Array(1000).fill(1);
+  list = new Array(100).fill(1);
 }
